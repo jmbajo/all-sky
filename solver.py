@@ -116,25 +116,17 @@ def raster_triangle(triangle_pos, triangle_values, dst):
                                     lamda1 * triangle_values[1] + \
                                     lamda2 * triangle_values[2]
 
-                        # print("     Estoy adentro ", x, y, dst[y][x])
-                    # else:
-                        # print("     afuera", f12, f20, f01)
-
-    # else:
-    #     print("     afuera img ", v0, v1, v2)
-
 
 
 def transform_image(source, dst, solution):
     x_size = source.shape[1]
     y_size = source.shape[0]
 
-    dst_size = dst.shape[0] # se asume imagen salida cuadrada
+    dst_size = dst.shape[0]
 
     for x in range(x_size-1):
         print (x)
         for y in range(y_size-1):
-            # rasterizo 2 tris
 
             vertex1_pos = transform_a_z_to_img(compute_azimuth_zenith(x+1, y,   **solution), dst_size)
             vertex2_pos = transform_a_z_to_img(compute_azimuth_zenith(x,   y,   **solution), dst_size)
@@ -161,17 +153,18 @@ def solve(star_list, img_size):
 
     sol = optimize.root(f_total, array, method='lm', args=star_list, tol=0.00000001)
     # sol = optimize.root(f_total, [320, 240, 0, 0, 0, 0, 0, 0], method='lm', args=star_list)
-    print(type(sol.x))
-
+    # print(type(sol.x))
 
     x0, y0, P1, P2, P3, a0, E, eps = sol.x
     eps = fmod(eps, 2 * pi)
 
     print ("CHECKS!!")
+    print("Fit Error in azimuth values [decimal degrees]: ")
     for star in star_list:
         print("Error", degrees(compute_azimuth_zenith(star[0][0], star[0][1], x0, y0, P1, P2, P3, a0, E, eps)[0]) - degrees(star[1][0]))
 
     print("\n")
+    print("Fit Error in zenith values [decimal degrees]: ")
     for star in star_list:
         print("Error", degrees(compute_azimuth_zenith(star[0][0], star[0][1], x0, y0, P1, P2, P3, a0, E, eps)[1]) - degrees(star[1][1]))
 
@@ -185,6 +178,9 @@ def solve(star_list, img_size):
         "E" : E,
         "eps": eps
     }
+
+    print("Solved values: ")
+    print(solution)
 
     return solution
 
